@@ -19,8 +19,12 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.github.izumix03.blecommander.DeviceListActivity.Companion.EXTRAS_DEVICE_ADDRESS
 import com.github.izumix03.blecommander.DeviceListActivity.Companion.EXTRAS_DEVICE_NAME
+import java.util.UUID
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
+
+    private var serviceUUID: UUID? = null
+
     // button click
     override fun onClick(v: View?) {
         when (v?.id) {
@@ -34,12 +38,30 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 disconnect()
                 return
             }
+            writeButton.id -> {
+                disconnectButton.isEnabled = false
+                connectButton.isEnabled = false
+                writeCharacteristic()
+                return
+            }
         }
+    }
+
+    private fun writeCharacteristic() {
+        val gatt = bluetoothGatt ?: return
+
+        Log.d(TAG, "gatt: ${gatt.getService(serviceUUID).characteristics.map { it.uuid }}")
+
+        val blechar = gatt.getService(serviceUUID)
+            .getCharacteristic(gatt.getService(serviceUUID).characteristics.first().uuid)
+        blechar.setValue("hello")
+        gatt.writeCharacteristic(blechar)
     }
 
     private fun connect() {
         Log.d(TAG, "Connecting....")
         if (deviceAddress.isEmpty()) return
+
         bluetoothGatt ?: let {
             it.bluetoothGatt = bluetoothAdapter
                 ?.getRemoteDevice(deviceAddress)
@@ -56,6 +78,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
                 when (newState) {
                     BluetoothGatt.STATE_CONNECTED -> {
+                        gatt?.discoverServices()
                         runOnUiThread {
                             disconnectButton.isEnabled = true
                         }
@@ -65,6 +88,19 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 }
                 super.onConnectionStateChange(gatt, status, newState)
+            }
+
+            override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
+                if (status != BluetoothGatt.GATT_SUCCESS) {
+                    Log.d(TAG, "failed to service discovery status: $status")
+                    return
+                }
+                serviceUUID = gatt?.services?.firstOrNull()?.uuid
+                runOnUiThread {
+                    writeButton.isEnabled = true
+                }
+
+                super.onServicesDiscovered(gatt, status)
             }
         }
     }
@@ -77,6 +113,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
         connectButton.isEnabled = true
         disconnectButton.isEnabled = false
+        writeButton.isEnabled = false
     }
 
     companion object {
@@ -90,6 +127,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var connectButton: Button
     private lateinit var disconnectButton: Button
+    private lateinit var writeButton: Button
 
     private val bluetoothAdapter: BluetoothAdapter? by lazy {
         (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
@@ -101,8 +139,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
         connectButton = findViewById(R.id.button_connect)
         connectButton.setOnClickListener(this)
+
         disconnectButton = findViewById(R.id.button_disconnect)
         disconnectButton.setOnClickListener(this)
+
+        writeButton = findViewById(R.id.button_write)
+        writeButton.setOnClickListener(this)
 
         if (!hasBleFeature()) return
 
@@ -117,6 +159,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
         connectButton.isEnabled = false
         disconnectButton.isEnabled = false
+        writeButton.isEnabled = false
 
         if (deviceAddress.isNotEmpty()) connectButton.isEnabled = true
 

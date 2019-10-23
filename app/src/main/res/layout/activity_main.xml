@@ -75,5 +75,12 @@
             android:layout_height="wrap_content"
             android:text="@string/disconnect"
             android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/button_write"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/write"
+            android:textSize="18sp" />
     </LinearLayout>
 </LinearLayout>

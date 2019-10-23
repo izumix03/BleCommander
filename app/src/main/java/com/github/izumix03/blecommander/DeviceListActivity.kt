@@ -12,7 +12,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
-import android.text.TextUtils
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -118,16 +117,14 @@ class DeviceListActivity : AppCompatActivity(), AdapterView.OnItemClickListener 
             view.tag = viewHolder
 
             val device = deviceList[position]
-            viewHolder.deviceName.text =
-                if (TextUtils.isEmpty(device.name)) resources.getString(R.string.unknown_device)
-                else device.name
-
+            viewHolder.deviceName.text = device.name
             viewHolder.deviceAddress.text = device.address.toString()
 
             return view
         }
 
         fun addDevice(device: BluetoothDevice?) {
+            if (device?.name?.isBlank() == true) return
             if (!deviceList.contains(device)) device?.let {
                 deviceList.add(it)
                 notifyDataSetChanged()
