@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         Log.d(TAG, "gatt: ${gatt.getService(serviceUUID).characteristics.map { it.uuid }}")
 
         val blechar = gatt.getService(serviceUUID)
-            .getCharacteristic(gatt.getService(serviceUUID).characteristics.first().uuid)
+            .getCharacteristic(gatt.getService(serviceUUID).characteristics.last().uuid)
         blechar.setValue("hello")
         gatt.writeCharacteristic(blechar)
     }
@@ -95,7 +95,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     Log.d(TAG, "failed to service discovery status: $status")
                     return
                 }
-                serviceUUID = gatt?.services?.firstOrNull()?.uuid
+                gatt?.services?.forEach {
+                    Log.d(TAG, it.uuid.toString())
+                }
+                serviceUUID = gatt?.services?.first {
+                    it.uuid == UUID.fromString("AAAAAAAA-AAAA-AAAA-AAAA-7D33CECEBC31")
+                }?.uuid
+
                 runOnUiThread {
                     writeButton.isEnabled = true
                 }
