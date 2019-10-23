@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">BleCommander</string>
+
+    <!-- Main Toast -->
+    <string name="ble_is_not_supported">BLEはサポートされていません</string>
+    <string name="bluetooth_is_not_supported">Bluetoothはサポートされていません</string>
+    <string name="bluetooth_is_not_working">Bluetoothが利用可能になっていません</string>
+    <string name="location_is_not_working">位置情報が利用可能になっていません</string>
+
+    <!-- Main Menu -->
+    <string name="search">Search</string>
+
+    <!-- Main Label -->
+    <string name="device_name">Device Name</string>
+    <string name="device_address">Device Address</string>
+
+    <!-- DeviceList Toast -->
+    <string name="unknown_device">Unknown device</string>
+
+    <!-- DeviceList Menu -->
+    <string name="scan">Scan</string>
+    <string name="stop">Stop</string>
+
+    <!-- DeviceList Menu -->
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
+</resources>
